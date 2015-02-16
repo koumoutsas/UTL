@@ -1,0 +1,103 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13GraphUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13GraphUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13GraphUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13GraphUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13GraphUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN6QMutexC1ENS_13RecursionModeE
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   obj:/usr/lib/x86_64-linux-gnu/libQtCore.so.4.8.4
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
