@@ -1,0 +1,97 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:UDataMemory_createNewInstance_52
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   fun:ucnv_getStandardName_52
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN10QTextCodec14codecForLocaleEv
+   fun:_ZN7QString18toLocal8Bit_helperEPK5QChari
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:UDataMemory_createNewInstance_52
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   obj:/usr/lib/x86_64-linux-gnu/libicuuc.so.52.1
+   fun:ucnv_getStandardName_52
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN10QTextCodec14codecForLocaleEv
+   fun:_ZN7QString18toLocal8Bit_helperEPK5QChari
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Test.so.5.3.0
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13KCoreUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13KCoreUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN13KCoreUnitTestC1Ev
+   fun:main
+}

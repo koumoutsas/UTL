@@ -1,0 +1,33 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN21SetOperationsUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:_ZN14QWaitConditionC1Ev
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN21SetOperationsUnitTestC1Ev
+   fun:main
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   obj:/usr/lib/x86_64-linux-gnu/libQt5Core.so.5.3.0
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN21SetOperationsUnitTestC1Ev
+   fun:main
+}
