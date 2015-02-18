@@ -83,6 +83,8 @@ private Q_SLOTS:
 	void increasingGraphInduced();
 	void graphEdge();
 	void increasingGraphEdge();
+	void graphSetWeight();
+	void increasingGraphSetWeight();
 	void graphRemove();
 	void graphRemoveEdge();
 	void graphConnectedComponents();
@@ -131,6 +133,9 @@ private:
 
 	template<class T>
 	void graphEdge();
+
+	template<class T>
+	void graphSetWeight();
 };
 
 template<typename T>
@@ -170,9 +175,9 @@ void GraphUnitTest::graphEmpty()
 {
 	T graph;
 	QVERIFY(graph.empty());
-	graph.insert(0,T::s_emptyAdjacencyList);
+	graph.insert(0);
 	QVERIFY(not graph.empty());
-	graph.insert(1,T::s_emptyAdjacencyList);
+	graph.insert(1);
 	QVERIFY(not graph.empty());
 }
 
@@ -193,7 +198,7 @@ void GraphUnitTest::graphSize()
 	for(unsigned int i=0;i<5;++i)
 	{
 		QVERIFY(graph.size()==i);
-		graph.insert(i,T::s_emptyAdjacencyList);
+		graph.insert(i);
 	}
 }
 
@@ -217,7 +222,7 @@ void GraphUnitTest::graphEquality()
 	graph2.insert(3,{0});
 	QVERIFY(graph1==graph2);
 	T graph3(graph2);
-	graph3.edge(3,1);
+	graph3.edge(3,1,1);
 	QVERIFY(not(graph1==graph3));
 	QVERIFY(not(graph2==graph3));
 }
@@ -241,7 +246,7 @@ void GraphUnitTest::graphNodes()
 	const typename T::Node node(0);
 	graph.insert(node,l);
 	l.insert(node);
-	QVERIFY(graph.nodes()==l);
+	QVERIFY(graph.nodes()==typename T::NodeSet(l));
 }
 
 void GraphUnitTest::graphNodes()
@@ -266,7 +271,7 @@ void GraphUnitTest::graphDegree()
 	{
 		QVERIFY(graph.degree(n)==1);
 	}
-	graph.edge(1,5);
+	graph.edge(1,5,1);
 	QVERIFY(graph.degree(1)==2);
 	QVERIFY(graph.degree(5)==2);
 	const typename T::Node noNode(2);
@@ -344,7 +349,7 @@ void GraphUnitTest::graphNeighbors()
 	const typename T::Node node(*reverse.begin());
 	graph.insert(node,l);
 	const typename T::Node isolated(2);
-	graph.insert(isolated,T::s_emptyAdjacencyList);
+	graph.insert(isolated);
 	QVERIFY(graph.neighbors(node)==l);
 	QVERIFY(graph.neighbors(isolated).empty());
 	for(const auto& n:l)
@@ -382,8 +387,8 @@ void GraphUnitTest::graphInsert()
 	const typename T::AdjacencyList l2={3,5};
 	const typename T::Node node2(1);
 	graph.insert(node2,l2);
-	graph.insert(node2,T::s_emptyAdjacencyList);
 	typename T::NodeSet nodeSet(l1);
+	graph.insert(node2);
 	nodeSet.insert(node1);
 	nodeSet.insert(l2.begin(),l2.end());
 	QVERIFY(graph.nodes()==nodeSet);
@@ -408,6 +413,9 @@ void GraphUnitTest::graphInsert()
 		QVERIFY(e.node()==node1);
 		QVERIFY(graph1.nodes().empty());
 	}
+	const typename T::Node node3(0);
+	graph1.insert(node3);
+	QVERIFY(graph1.neighbors(node3).empty());
 }
 
 void GraphUnitTest::graphInsert()
@@ -481,11 +489,11 @@ void GraphUnitTest::graphEdge()
 	{
 		QVERIFY(e.node()==node1);
 	}
-	graph.insert(node1,T::s_emptyAdjacencyList);
+	graph.insert(node1);
 	const typename T::Node node2(1);
 	try
 	{
-		graph.edge(node1,node2);
+		graph.edge(node1,node2,1);
 		QVERIFY(false);
 	}
 	catch(const typename T::NoSuchNode& e)
@@ -494,18 +502,28 @@ void GraphUnitTest::graphEdge()
 	}
 	try
 	{
-		graph.edge(node2,node1);
+		graph.edge(node2,node1,1);
 		QVERIFY(false);
 	}
 	catch(const typename T::NoSuchNode& e)
 	{
 		QVERIFY(e.node()==node2);
 	}
-	graph.insert(node2,T::s_emptyAdjacencyList);
+	graph.insert(node2);
+	try
+	{
+		graph.edge(node1,node2,0);
+		QVERIFY(false);
+	}
+	catch(const typename T::ZeroWeightEdge& e)
+	{
+		QVERIFY(e.edge()==std::make_pair(node1,node2));
+	}
 	graph.edge(node1,node2);
+	QVERIFY(graph.edgeWeight(node1,node2)==1);
 	try
 	{
-		graph.edge(node1,node2);
+		graph.edge(node1,node2,1);
 		QVERIFY(false);
 	}
 	catch(const typename T::EdgeExists& e)
@@ -514,7 +532,7 @@ void GraphUnitTest::graphEdge()
 	}
 	try
 	{
-		graph.edge(node2,node1);
+		graph.edge(node2,node1,1);
 		QVERIFY(false);
 	}
 	catch(const typename T::EdgeExists& e)
@@ -522,8 +540,10 @@ void GraphUnitTest::graphEdge()
 		QVERIFY(e.edge()==std::make_pair(node2,node1));
 	}
 	const typename T::Node node3(2);
-	graph.insert(node3,T::s_emptyAdjacencyList);
-	graph.edge(node1,node3);
+	graph.insert(node3);
+	typename T::EdgeWeight w=2;
+	graph.edge(node1,node3,w);
+	QVERIFY(graph.edgeWeight(node1,node3)==w);
 	QVERIFY(graph.degree(node1)==2 and graph.degree(node2)==1 and graph.degree(node3)==1);
 }
 
@@ -535,6 +555,85 @@ void GraphUnitTest::graphEdge()
 void GraphUnitTest::increasingGraphEdge()
 {
 	graphEdge<IncreasingUndirectedGraph>();
+}
+
+
+template<class T>
+void GraphUnitTest::graphSetWeight()
+{
+	T graph;
+	const typename T::Node node0(0);
+	try
+	{
+		graph.setWeight(node0,node0,1);
+		QVERIFY(false);
+	}
+	catch(const typename T::TrivialEdge& e)
+	{
+		QVERIFY(e.node()==node0);
+	}
+	graph.insert(node0);
+	const typename T::Node node1(1);
+	try
+	{
+		graph.setWeight(node0,node1,1);
+		QVERIFY(false);
+	}
+	catch(const typename T::NoSuchNode& e)
+	{
+		QVERIFY(e.node()==node1);
+	}
+	try
+	{
+		graph.setWeight(node1,node0,1);
+		QVERIFY(false);
+	}
+	catch(const typename T::NoSuchNode& e)
+	{
+		QVERIFY(e.node()==node1);
+	}
+	graph.insert(node1);
+	try
+	{
+		graph.setWeight(node0,node1,1);
+		QVERIFY(false);
+	}
+	catch(const typename T::NoSuchEdge& e)
+	{
+		QVERIFY(e.edge()==std::make_pair(node0,node1));
+	}
+	try
+	{
+		graph.setWeight(node1,node0,1);
+		QVERIFY(false);
+	}
+	catch(const typename T::NoSuchEdge& e)
+	{
+		QVERIFY(e.edge()==std::make_pair(node1,node0));
+	}
+	graph.edge(node0,node1);
+	try
+	{
+		graph.setWeight(node0,node1,0);
+		QVERIFY(false);
+	}
+	catch(const typename T::ZeroWeightEdge& e)
+	{
+		QVERIFY(e.edge()==std::make_pair(node0,node1));
+	}
+	typename T::EdgeWeight w=2;
+	graph.setWeight(node0,node1,w);
+	QVERIFY(graph.edgeWeight(node0,node1)==w);
+}
+
+void GraphUnitTest::graphSetWeight()
+{
+	graphSetWeight<UndirectedGraph>();
+}
+
+void GraphUnitTest::increasingGraphSetWeight()
+{
+	graphSetWeight<IncreasingUndirectedGraph>();
 }
 
 void GraphUnitTest::graphRemove()
@@ -554,10 +653,10 @@ void GraphUnitTest::graphRemove()
 	graph.insert(node,l);
 	const UndirectedGraph snapshot(graph);
 	const UndirectedGraph::Node isolated(2);
-	graph.insert(isolated,UndirectedGraph::s_emptyAdjacencyList);
+	graph.insert(isolated);
 	graph.remove(isolated);
 	QVERIFY(graph==snapshot);
-	graph.edge(5,6);
+	graph.edge(5,6,1);
 	graph.remove(1);
 	QVERIFY(graph.degree(node)==2);
 	graph.remove(node);
@@ -632,8 +731,9 @@ template<class T>
 T GraphUnitTest::buildDepthFirstTree() noexcept
 {
 	T graph;
-	graph.insert(1,{6,2});
-	graph.insert(2,{4,5,3});
+	graph.insert(1,{7,2});
+	graph.insert(2,{5,4,3});
+	graph.insert(5,{6});
 	return graph;
 }
 
@@ -643,7 +743,7 @@ T GraphUnitTest::buildBreadthFirstTree() noexcept
 {
 	T graph;
 	graph.insert(1,{2,3});
-	graph.insert(3,{5,4,6});
+	graph.insert(3,{4,5,6});
 	return graph;
 }
 
@@ -664,7 +764,7 @@ template<class T>
 T GraphUnitTest::buildBreadthFirstSegmented() noexcept
 {
 	T graph;
-	graph.insert(1,{3,2,4});
+	graph.insert(1,{2,3,4});
 	graph.insert(3,{2,5});
 	graph.insert(2,{5});
 	graph.insert(5,{4,6});

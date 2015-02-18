@@ -16,29 +16,129 @@ template<typename T>
 class UndirectedGraph
 {
 public:
-	//! Create an empty graph
-	UndirectedGraph()=default;
-
-	//! A node is just a positive integer
 	using Node=T;
 
-	//! The data structure for the neighbors of a node
-	using AdjacencyList=std::unordered_set<Node>;
+	using EdgeWeight=unsigned int;
+private:	
+	//! The default edge weight. It is used by the interface that inserts edges without weight
+	static const EdgeWeight s_defaultEdgeWeight=1;
+
+	//! Holds a node and weight pair, representing an entry in the adjacency list
+	struct Neighbor
+	{
+		Node node;
+
+		EdgeWeight weight;
+
+		operator const Node&() const noexcept
+		{
+			return node;
+		}
+
+		bool operator==(const Neighbor& other) const noexcept
+		{
+			return node==other.node;
+		}
+
+		bool operator<(const Neighbor& other) const noexcept
+		{
+			return node<other.node;
+		}
+
+		friend std::ostream& operator<<(std::ostream& o,const typename Graph::UndirectedGraph<T>::Neighbor& n) noexcept
+		{
+			return o<<'('<<n.node<<" w = "<<n.weight<<')';
+		}
+	};
+
+	//! Hashing struct for Neighbor. It is not declared as a specialization of std::hash because it is syntatically impossible
+	//! to do in C++ with templates
+	struct NeighborHash
+	{
+		std::size_t operator()(const Neighbor& n) const noexcept
+		{
+			return std::hash<Node>()(n.node);
+		}
+	};
+public:
+	using NodeSet=std::unordered_set<Node>;
+
+	//! The adjacency list struct, with some convenience methods for initializing it from a node set, with default weights,
+	//! getting the node set without the weights, and finding a node without weight. Pay attention to the fact that there is no
+	//! find() or erase() with weight information. The insert interface from the base class is exposed, along with an insert(Node)
+	//! that allows unweighted edges to be inserted
+	class AdjacencyList:public std::unordered_set<Neighbor,NeighborHash>
+	{
+	public:
+		using std::unordered_set<Neighbor,NeighborHash>::unordered_set;
+
+		AdjacencyList()=default;
+
+		AdjacencyList(const std::initializer_list<Node>& il)
+		{
+			for(auto it=il.begin();it!=il.end();++it)
+			{
+				insert(*it);
+			}
+		}
+
+		operator NodeSet() const noexcept
+		{
+			NodeSet ret;
+			for(const auto& n:*this)
+			{
+				ret.insert(n);
+			}
+			return ret;
+		}
+
+		using iterator=typename std::unordered_set<Neighbor,NeighborHash>::iterator;
+
+		iterator find(const Node& n) noexcept
+		{
+			return std::unordered_set<Neighbor,NeighborHash>::find({n,0});
+		}
+
+		using const_iterator=typename std::unordered_set<Neighbor,NeighborHash>::const_iterator;
+
+		const_iterator find(const Node& n) const noexcept
+		{
+			return std::unordered_set<Neighbor,NeighborHash>::find({n,0});
+		}
+
+		using size_type=typename std::unordered_set<Neighbor,NeighborHash>::size_type;
+
+		size_type erase(const Node& n) noexcept
+		{
+			return std::unordered_set<Neighbor,NeighborHash>::erase({n,0});
+		}
+
+		iterator erase(iterator it) noexcept
+		{
+			return std::unordered_set<Neighbor,NeighborHash>::erase(it);
+		}
+
+		std::pair<iterator,bool> insert(const Node& n) noexcept
+		{
+			return std::unordered_set<Neighbor,NeighborHash>::insert({n,s_defaultEdgeWeight});
+		}
+
+		using std::unordered_set<Neighbor,NeighborHash>::insert;
+
+		friend std::ostream& operator<<(std::ostream& o,const typename Graph::UndirectedGraph<T>::AdjacencyList& nodes) noexcept
+		{
+			return prettyPrintNodeList(o,nodes);
+		}
+	};
 
 	//! Alias for size_t in most systems
 	using NodeDegree=typename AdjacencyList::size_type;
-
-	//! NodeSet is an alias for readability
-	using NodeSet=AdjacencyList;
 private:
 	//! The internal data structure for the graph is a hashmap
 	using Container=std::unordered_map<Node,AdjacencyList>;
 public:
 	//! Alias for size_t in most systems
 	using GraphSize=typename Container::size_type;
-
-	//! An edge is an unordered pair of nodes. If (n1,n2) is an edge in the graph, (n2,n1) is an edge as well
-	using Edge=std::pair<Node,Node>;
 private:
 	//! Base class for all exceptions involving nodes.
 	//! You can get the node that caused the exception with the node() method
@@ -80,6 +180,8 @@ private:
 			{
 			}
 
+		using Edge=std::pair<Node,Node>;
+
 		const Edge& edge() const noexcept
 		{
 			return m_edge;
@@ -88,9 +190,6 @@ private:
 		const Edge m_edge;
 	};
 public:
-	//! Convenience empty adjacency list
-	static const AdjacencyList s_emptyAdjacencyList;
-
 	//! This exception is thrown by methods that take a node as argument when the node is not part of the graph
 	class NoSuchNode:public NodeException
 	{
@@ -126,6 +225,13 @@ public:
 	{
 	public:
 		using NodeException::NodeException;
+	};
+
+	//! Thrown when an edge with 0 weight is added
+	class ZeroWeightEdge:public EdgeException
+	{
+	public:
+		using EdgeException::EdgeException;
 	};
 
 	/*!
@@ -202,12 +308,31 @@ public:
 	}
 
 	/*!
+	 * \brief edgeWeight Get the weight of an edge
+	 * \throw NoSuchEdge If the edge doesn't exist
+	 */
+	EdgeWeight edgeWeight(const Node& n1,const Node& n2) const
+	{
+		if(not isEdge(n1,n2))
+		{
+			throw NoSuchEdge(n1,n2);
+		}
+		return find(n1)->second.find(n2)->weight;
+	}
+
+	/*!
 	 * \brief neighbors Get the neighbors of a node
 	 * \throw NoSuchNode If the node doesn't belong to the graph
 	 */
 	const AdjacencyList& neighbors(const Node& n) const
 	{
 		return find(n)->second;
+	}
+
+	//! Convenience method for inserting a node without neighbors
+	virtual void insert(const Node& node)
+	{
+		insert(node,AdjacencyList());
 	}
 
 	//! Insert a node with a set of neighbors.
@@ -225,7 +350,7 @@ public:
 		m_graph[node].insert(neighbors.begin(),neighbors.end());
 		for(const auto& n:neighbors)
 		{
-			m_graph[n].insert(node);
+			m_graph[n].insert({node,n.weight});
 		}
 	}
 
@@ -242,13 +367,13 @@ public:
 			bool result=true;
 			for(const auto& m:l)
 			{
-				if(&m==&n)
+				if(&m.node==&n)
 				{
 					return result;
 				}
 				try
 				{
-					if(not m_graph.at(m).insert(node).second)
+					if(not m_graph.at(m).insert({node,m.weight}).second)
 					{
 						result=false;
 					}
@@ -292,15 +417,30 @@ public:
 	}
 
 	/*!
-	 * \brief edge Add a new edge between two existing nodes
+	 * \brief edge Add a new edge between two existing nodes with the default weight
 	 * \throw TrivialEdge If n1==n2
 	 * \throw EdgeExists If there is already an edge between n1 and n2
 	 */
 	virtual void edge(const Node& n1,const Node& n2)
 	{
+		return edge(n1,n2,s_defaultEdgeWeight);
+	}
+
+	/*!
+	 * \brief edge Add a new edge between two existing nodes
+	 * \throw TrivialEdge If n1==n2
+	 * \throw ZeroWeightEdge If th weight is 0
+	 * \throw EdgeExists If there is already an edge between n1 and n2
+	 */
+	virtual void edge(const Node& n1,const Node& n2,const EdgeWeight weight)
+	{
 		if(n1==n2)
 		{
 			throw TrivialEdge(n1);
+		}
+		if(not weight)
+		{
+			throw ZeroWeightEdge(n1,n2);
 		}
 		AdjacencyList& l1=find(n1)->second;
 		AdjacencyList& l2=find(n2)->second;
@@ -312,8 +452,8 @@ public:
 		}
 		else if(not n1HasN2 and not n2HasN1)
 		{
-			l1.insert(n2);
-			l2.insert(n1);
+			l1.insert({n2, weight});
+			l2.insert({n1, weight});
 		}
 		else
 		{
@@ -326,6 +466,56 @@ public:
 				throwCorruptedGraph(n2,n1);
 			}
 		}
+	}
+
+	/*!
+	 * \brief setWeight Set the weight of an existing edge
+	 * \throw TrivialEdge If n1==n2
+	 * \throw ZeroWeightEdge If th weight is 0
+	 * \throw NoSuchEdge If there is already no such edge
+	 */
+	void setWeight(const Node& n1,const Node& n2,const EdgeWeight weight)
+	{
+		if(n1==n2)
+		{
+			throw TrivialEdge(n1);
+		}
+		if(not weight)
+		{
+			throw ZeroWeightEdge(n1,n2);
+		}
+		AdjacencyList& l1=find(n1)->second;
+		AdjacencyList& l2=find(n2)->second;
+		const auto it1=l1.find(n2);
+		const auto it2=l2.find(n1);
+		const bool n1HasN2=it1!=l1.end();
+		const bool n2HasN1=it2!=l2.end();
+		if(n1HasN2 and n2HasN1)
+		{
+			Neighbor neighbor1=*it1;
+			Neighbor neighbor2=*it2;
+			neighbor1.weight=neighbor2.weight=weight;
+			l1.erase(it1);
+			l2.erase(it2);
+			l1.insert(neighbor1);
+			l2.insert(neighbor2);
+		}
+		else if(not n1HasN2 and not n2HasN1)
+		{
+			throw NoSuchEdge(n1,n2);
+		}
+		else
+		{
+			if(n2HasN1)
+			{
+				throwCorruptedGraph(n1,n2);
+			}
+			else
+			{
+				throwCorruptedGraph(n2,n1);
+			}
+		}
+
 	}
 
 	/*!
@@ -378,7 +568,13 @@ public:
 			try
 			{
 				const AdjacencyList& l1=find(n)->second;
-				l=intersection(l1,nodeSet);
+				for(const auto& n:l1)
+				{
+					if(nodeSet.find(n)!=nodeSet.end())
+					{
+						l.insert(n);
+					}
+				}
 			}
 			catch(const NoSuchNode&)
 			{
@@ -470,15 +666,10 @@ private:
 	}
 };
 
-template<typename T>
-const typename UndirectedGraph<T>::AdjacencyList UndirectedGraph<T>::s_emptyAdjacencyList;
-
-}
-
-template<typename T>
-std::ostream& operator<<(std::ostream& o,const typename Graph::UndirectedGraph<T>::NodeSet& nodes) noexcept
+template <typename T>
+std::ostream& prettyPrintNodeList(std::ostream& o,const T& nodes) noexcept
 {
-	using OrderedNodeSet=std::set<typename Graph::UndirectedGraph<T>::Node>;
+	using OrderedNodeSet=std::set<typename T::value_type>;
 	const OrderedNodeSet ordered(nodes.begin(),nodes.end());
 	o<<"{ ";
 	for(typename OrderedNodeSet::const_iterator lit=ordered.begin();lit!=ordered.end();)
@@ -494,6 +685,14 @@ std::ostream& operator<<(std::ostream& o,const typename Graph::UndirectedGraph<T
 		o<<' ';
 	}
 	return o<<'}';
+}
+
+}
+
+template<typename T>
+std::ostream& operator<<(std::ostream& o,const typename Graph::UndirectedGraph<T>::NodeSet& nodes)
+{
+	return Graph::prettyPrintNodeList(o, nodes);
 }
 
 template<typename T>

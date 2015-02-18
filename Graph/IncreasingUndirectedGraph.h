@@ -15,48 +15,30 @@ public:
 
 	using Node=typename UndirectedGraph<T>::Node;
 	using AdjacencyList=typename UndirectedGraph<T>::AdjacencyList;
+	using EdgeWeight=typename UndirectedGraph<T>::EdgeWeight;
+
+	void insert(const Node& node) override
+	{
+		UndirectedGraph<T>::insert(node);
+		insertInternal(node,UndirectedGraph<T>::UndirectedGraph::neighbors(node));
+	}
 
 	void insert(const Node& node,const AdjacencyList& neighbors) override
 	{
 		UndirectedGraph<T>::insert(node,neighbors);
-		try
-		{
-			m_components.add(node);
-		}
-		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
-		{
-		}
-		for(const auto& n:neighbors)
-		{
-			try
-			{
-				m_components.add(n);
-			}
-			catch(typename SetOperations::DisjointSets<T>::ElementExists&)
-			{
-			}
-			m_components.join(node,n);
-		}
+		insertInternal(node,neighbors);
 	}
 
 	void edge(const Node& n1,const Node& n2) override
 	{
 		UndirectedGraph<T>::edge(n1,n2);
-		try
-		{
-			m_components.add(n1);
-		}
-		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
-		{
-		}
-		try
-		{
-			m_components.add(n2);
-		}
-		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
-		{
-		}
-		m_components.join(n1,n2);
+		edgeInternal(n1,n2);
+	}
+
+	void edge(const Node& n1,const Node& n2,const EdgeWeight weight) override
+	{
+		UndirectedGraph<T>::edge(n1,n2,weight);
+		edgeInternal(n1,n2);
 	}
 
 	using ConnectedComponentSet=typename UndirectedGraph<T>::ConnectedComponentSet;
@@ -93,6 +75,47 @@ private:
 	void remove(const Node&) override
 	{
 		throw typename UndirectedGraph<T>::CorruptedGraph("Illegal remove node operation");
+	}
+
+	void edgeInternal(const Node& n1,const Node& n2) noexcept
+	{
+		try
+		{
+			m_components.add(n1);
+		}
+		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
+		{
+		}
+		try
+		{
+			m_components.add(n2);
+		}
+		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
+		{
+		}
+		m_components.join(n1,n2);
+	}
+
+	void insertInternal(const Node& node,const AdjacencyList& neighbors) noexcept
+	{
+		try
+		{
+			m_components.add(node);
+		}
+		catch(typename SetOperations::DisjointSets<T>::ElementExists&)
+		{
+		}
+		for(const auto& n:neighbors)
+		{
+			try
+			{
+				m_components.add(n);
+			}
+			catch(typename SetOperations::DisjointSets<T>::ElementExists&)
+			{
+			}
+			m_components.join(node,n);
+		}
 	}
 
 	SetOperations::DisjointSets<T> m_components;
